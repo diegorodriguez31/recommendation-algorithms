@@ -1,0 +1,78 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+#Filtrage collabortatif
+import numpy as np
+import csv
+
+#Lire le fichier csv et le mettre dans un tableau
+def lecture_csv():
+    n = 100
+    m = 1000
+    
+    
+    fichier = './toy_incomplet.csv'
+    donnees = np.zeros((n,m))
+    i = 0
+    with open(fichier, 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in spamreader:
+           for j in range(m):
+               donnees[i,j] = row[j]
+           i+=1
+    return donnees
+
+donnees = lecture_csv()
+           
+"""    Recuperer une selection d'informations sur laquelle va se baser le systeme de filtrage
+    La première consiste a recueillir de l'information
+    La seconde consiste a batir une matrice contenant l'information.
+    La troisieme à extraire a partir de cette matrice une liste de suggestions"""
+    
+    
+
+    
+
+"""Pour un filtrage base sur l’utilisateur, il faut definir une mesure de la similarite entre utilisateurs, et une
+facon d’agreger les notes attribuees par les utilisateurs similaires.
+    Chercher des utilisateurs qui ont les memes comportements avec l'utilisateur a qui l'on souhaite faire des recommandations
+    Utiliser les notes des utilisateurs similaires pour calculer une liste de recommandations pour cet utilisateur."""
+    
+    
+    
+    
+#Calcul de la similarité
+
+def calculSimilarite(donnees,user1,user2):
+    for i in range(user1):
+        for j in range(len(donnees)):
+            if donnees[i][j] != -1 and donnees[user2][j] != -1:
+                print donnees[i][j]
+        
+
+calculSimilarite(donnees,1,2)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+     
+
+"""Pour un filtrage base sur l’item, il faut definir une mesure de la similarite entre items. Plusieurs options sont possibles pour les mesures de similarite."""
+
+"""Le systeme de filtrage collaboratif a ete popularise par Amazon avec la fonctionnalite "les gens qui ont achete x ont aussi achete y". 
+    Le systeme d'Amazon etait un systeme passif qui se basait sur les achats des gens pour construire la matrice de relation entre les objets.
+
+    Batir une matrice item-item déterminant des relations entre des objets "pairs"
+    Utiliser cette matrice pour proposer des objets."""
+    
+    
+
