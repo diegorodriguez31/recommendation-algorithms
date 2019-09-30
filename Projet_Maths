@@ -3,6 +3,7 @@
 #Filtrage collabortatif
 import numpy as np
 import csv
+from math import *
 
 #Lire le fichier csv et le mettre dans un tableau
 def lecture_csv():
@@ -43,13 +44,51 @@ facon d’agreger les notes attribuees par les utilisateurs similaires.
 #Calcul de la similarité
 
 def calculSimilarite(donnees,user1,user2):
-    for i in range(user1):
-        for j in range(len(donnees)):
-            if donnees[i][j] != -1 and donnees[user2][j] != -1:
-                print donnees[i][j]
-        
+    r = numerateurPearson(donnees,user1,user2)/(normePearson(donnees,user1,user2)*normePearson(donnees,user2,user1))
+    print r
+    
+        #r=numerateur/normei*normej
 
-calculSimilarite(donnees,1,2)
+def numerateurPearson(donnees,user1,user2):
+    sommeUser1 = 0
+    sommeUser2 = 0
+    nombreItem = 0
+    for i in range(np.shape(donnees)[1]):
+        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
+            sommeUser1 += donnees[user1][i]
+            sommeUser2 += donnees[user2][i]
+            nombreItem = nombreItem + 1
+    moyenneUser1 = sommeUser1/nombreItem
+    moyenneUser2 = sommeUser2/nombreItem
+    numerateur = 0
+    for i in range(np.shape(donnees)[1]):
+        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
+            numerateur += (donnees[user1][i] - moyenneUser1)*(donnees[user2][i] - moyenneUser2)
+    return numerateur
+
+
+
+def normePearson(donnees,user1,user2):
+    norme = 0
+    for i in range(np.shape(donnees)[1]):
+        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
+            norme += (donnees[user1][i] - moyenneUser1)*(donnees[user1][i] - moyenneUser1)
+    return sqrt(norme)
+    
+def moyennePearson(somme,nb):
+    sommeUser1 = 0
+    sommeUser2 = 0
+    nombreItem = 0
+    for i in range(np.shape(donnees)[1]):
+        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
+            sommeUser1 += donnees[user1][i]
+            sommeUser2 += donnees[user2][i]
+            nombreItem = nombreItem + 1
+    moyenneUser1 = sommeUser1/nombreItem
+    moyenneUser2 = sommeUser2/nombreItem
+
+calculSimilarite(donnees,0,1)
+
     
     
     
