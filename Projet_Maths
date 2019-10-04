@@ -40,7 +40,7 @@ facon d’agreger les notes attribuees par les utilisateurs similaires.
 def calculSimilarite(donnees, user1, user2):
     if user1 != user2:
         r = numerateurPearson(donnees, user1, user2) / denominateur(donnees,user1,user2)
-        print r
+    return r
 
 def denominateur(donnees,user1,user2):
     return normePearson(donnees, user1, user2) * normePearson(donnees, user2, user1)
@@ -94,7 +94,6 @@ def predictionNoteUtilisateur(donnees,user,item):
     return resultat
 
 
-"""
 def donneesCompletes(donnees):
     donneesCompletes = donnees
     for i in range(np.shape(donnees)[0]):
@@ -103,11 +102,7 @@ def donneesCompletes(donnees):
                 donneesCompletes[i][j] = predictionNoteUtilisateur(donnees,i,j)
     print donneesCompletes
 
-donneesCompletes(donnees)
-"""
-
-
-predictionNoteUtilisateur(donnees,0,0)
+print donneesCompletes(donnees)
 
 """Pour un filtrage base sur l’item, il faut definir une mesure de la similarite entre items. Plusieurs options sont possibles pour les mesures de similarite."""
 
