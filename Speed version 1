@@ -51,30 +51,6 @@ def similaritefactoring(user1, user2):
         r = numerateur / (sqrt(norme1) * sqrt(norme2))
     return r
 
-def calculSimilarite(donnees, user1, user2):
-    if user1 != user2:
-        r = numerateurPearson(donnees, user1, user2) / denominateur(donnees,user1,user2)
-    return r
-
-def denominateur(donnees,user1,user2):
-    return normePearson(donnees, user1, user2) * normePearson(donnees, user2, user1)
-
-def numerateurPearson(donnees, user1, user2):
-    moyenneUser1 = moyennePearson(user1,user2)
-    moyenneUser2 = moyennePearson(user2,user1)
-    numerateur = 0
-    for i in range(np.shape(donnees)[1]):
-        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
-            numerateur += (donnees[user1][i] - moyenneUser1) * (donnees[user2][i] - moyenneUser2)
-    return numerateur
-
-def normePearson(donnees, user1, user2):
-    norme = 0
-    for i in range(np.shape(donnees)[1]):
-        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
-            norme += (donnees[user1][i] - moyennePearson(user1,user2))**2
-    return sqrt(norme)
-
 def moyennePearson(user1,user2):
     sommeUser = 0
     nombreItem = 0
@@ -95,18 +71,14 @@ def moyenneItems(user):
     moyenne = somme/nombre
     return moyenne
 
-
 def predictionNoteUtilisateur(donnees,user,item):
     num = 0
     den = 0
-    moyenneItem = moyenneItems(user)
     for i in range(np.shape(donnees)[0]):
             if donnees[i][item] != -1:
                 num += similaritefactoring(user,i) * (donnees[i][item] - moyenneItems(i))
                 den += fabs(similaritefactoring(user,i))
-    resultat = moyenneItem + num/den
-    return resultat
-
+    return moyenneItems(user) + num/den
 
 def donneesCompletes(donnees):
     donneesCompletes = donnees
@@ -118,6 +90,7 @@ def donneesCompletes(donnees):
     print donneesCompletes
 
 print donneesCompletes(donnees)
+
 
 """Pour un filtrage base sur l’item, il faut definir une mesure de la similarite entre items. Plusieurs options sont possibles pour les mesures de similarite."""
 
