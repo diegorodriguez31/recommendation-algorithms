@@ -71,27 +71,27 @@ def moyenneItems(user):
     moyenne = somme/nombre
     return moyenne
 
-def predictionNoteUtilisateur(donnees,user,item):
+def predictionNoteUtilisateur(user,item):
     num = 0
     den = 0
     for i in range(np.shape(donnees)[0]):
             if donnees[i][item] != -1:
-                num += similaritefactoring(user,i) * (donnees[i][item] - moyenneItems(i))
-                den += fabs(similaritefactoring(user,i))
-    return moyenneItems(user) + num/den
+                sim = similaritefactoring(user,i)
+                num += sim * (donnees[i][item] - moyenneItems(i))
+                den += fabs(sim)
+    return round(moyenneItems(user) + num/den,2)
 
-def donneesCompletes(donnees):
+def donneesCompletes():
     donneesCompletes = donnees
     for i in range(np.shape(donnees)[0]):
         for j in range(np.shape(donnees)[1]):
             if donnees[i][j] == -1:
-                donneesCompletes[i][j] = predictionNoteUtilisateur(donnees,i,j)
+                donneesCompletes[i][j] = predictionNoteUtilisateur(i,j)
                 print donneesCompletes[i][j]
     print donneesCompletes
 
-print donneesCompletes(donnees)
 
-
+donneesCompletes()
 """Pour un filtrage base sur l’item, il faut definir une mesure de la similarite entre items. Plusieurs options sont possibles pour les mesures de similarite."""
 
 """Le systeme de filtrage collaboratif a ete popularise par Amazon avec la fonctionnalite "les gens qui ont achete x ont aussi achete y". 
