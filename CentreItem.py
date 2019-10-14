@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # Filtrage collabortatif
+#Coefficient de corrélation de Pearson
 import numpy as np
 import csv
 from math import sqrt
@@ -73,5 +74,3 @@ def donneesCompletes():
                 donneesCompletes[i][j] = predictionNoteUtilisateur(i,j)
                 print donneesCompletes[i][j]
     return donneesCompletes
-
-donneesCompletes = donneesCompletes()
