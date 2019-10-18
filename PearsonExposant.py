@@ -8,15 +8,8 @@ from math import sqrt
 from math import fabs
 from CentreUser import lecture_csv
 
-import numpy as np
-import csv
-from math import sqrt
-from math import fabs
-
 
 donnees = lecture_csv()
-donneesPlusPetit = donnees[0:11, 0:101]
-print donneesPlusPetit
 
     
 #donneesPetit = construitPetit()
@@ -54,8 +47,8 @@ def similaritefactoring(user1, user2):
         for i in range(np.shape(donnees)[1]):
             if donnees[user1][i] != -1 and donnees[user2][i] != -1:
                 numerateur += (donnees[user1][i] - moyenneUser1) * (donnees[user2][i] - moyenneUser2)
-                norme1 += (donnees[user1][i] - moyenneUser1) ** 2
-                norme2 += (donnees[user2][i] - moyenneUser2) ** 2
+                norme1 += (donnees[user1][i] - moyenneUser1) ** 2,5
+                norme2 += (donnees[user2][i] - moyenneUser2) ** 2,5
         r = numerateur / (sqrt(norme1) * sqrt(norme2))
     return r
 
