@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 # Filtrage collabortatif
+#Coefficient de corrélation de Pearson
 import numpy as np
 import csv
 from math import sqrt
@@ -35,41 +36,29 @@ facon d’agreger les notes attribuees par les utilisateurs similaires.
     Utiliser les notes des utilisateurs similaires pour calculer une liste de recommandations pour cet utilisateur."""
 
 
-# Calcul de la similarité
-
-def calculSimilarite(donnees, user1, user2):
-    if user1 != user2:
-        r = numerateurPearson(donnees, user1, user2) / denominateur(donnees,user1,user2)
-    return r
-
-def denominateur(donnees,user1,user2):
-    return normePearson(donnees, user1, user2) * normePearson(donnees, user2, user1)
-
-def numerateurPearson(donnees, user1, user2):
-    moyenneUser1 = moyennePearson(user1,user2)
-    moyenneUser2 = moyennePearson(user2,user1)
-    numerateur = 0
-    for i in range(np.shape(donnees)[1]):
-        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
-            numerateur += (donnees[user1][i] - moyenneUser1) * (donnees[user2][i] - moyenneUser2)
-    return numerateur
-
-def normePearson(donnees, user1, user2):
-    norme = 0
-    for i in range(np.shape(donnees)[1]):
-        if donnees[user1][i] != -1 and donnees[user2][i] != -1:
-            norme += (donnees[user1][i] - moyennePearson(user1,user2))**2
-    return sqrt(norme)
-
-def moyennePearson(user1,user2):
-    sommeUser = 0
+# Calcul de la similarité version utilisateur
+def similaritefactoring(user1, user2):
+    sommeUser1 = 0
+    sommeUser2 = 0
     nombreItem = 0
     for i in range(np.shape(donnees)[1]):
         if donnees[user1][i] != -1 and donnees[user2][i] != -1:
-            sommeUser += donnees[user1][i]
+            sommeUser1 += donnees[user1][i]
+            sommeUser2 += donnees[user2][i]
             nombreItem = nombreItem + 1
-    moyenneUser = sommeUser / nombreItem
-    return moyenneUser
+    moyenneUser1 = sommeUser1 / nombreItem
+    moyenneUser2 = sommeUser2 /nombreItem
+    numerateur = 0
+    norme1 = 0
+    norme2 = 0
+    if user1 != user2:
+        for i in range(np.shape(donnees)[1]):
+            if donnees[user1][i] != -1 and donnees[user2][i] != -1:
+                numerateur += (donnees[user1][i] - moyenneUser1) * (donnees[user2][i] - moyenneUser2)
+                norme1 += (donnees[user1][i] - moyenneUser1) ** 2
+                norme2 += (donnees[user2][i] - moyenneUser2) ** 2
+        r = numerateur / (sqrt(norme1) * sqrt(norme2))
+    return r
 
 def moyenneItems(user):
     somme = 0
@@ -81,33 +70,25 @@ def moyenneItems(user):
     moyenne = somme/nombre
     return moyenne
 
-
-def predictionNoteUtilisateur(donnees,user,item):
+def ponderationPremiere(user,item):
     num = 0
     den = 0
-    moyenneItem = moyenneItems(user)
     for i in range(np.shape(donnees)[0]):
             if donnees[i][item] != -1:
-                num += calculSimilarite(donnees,user,i) * (donnees[i][item] - moyenneItems(i))
-                den += fabs(calculSimilarite(donnees,user,i))
-    resultat = moyenneItem + num/den
-    return resultat
+                sim = similaritefactoring(user,i)
+                num += sim * (donnees[i][item] - moyenneItems(i))
+                den += fabs(sim)
+    return round(moyenneItems(user) + num/den,2)
 
+#def ponderationSeconde():
+    
 
-def donneesCompletes(donnees):
+def donneesCompletes():
     donneesCompletes = donnees
-    for i in range(np.shape(donnees)[0]):
-        for j in range(np.shape(donnees)[1]):
-            if donnees[i][j] == -1:
-                donneesCompletes[i][j] = predictionNoteUtilisateur(donnees,i,j)
-    print donneesCompletes
+    for i in range(np.shape(donneesCompletes)[0]):
+        for j in range(np.shape(donneesCompletes)[1]):
+            if donneesCompletes[i][j] == -1:
+                donneesCompletes[i][j] = ponderationPremiere(i,j)
+                print donneesCompletes[i][j]
+    return donneesCompletes
 
-print donneesCompletes(donnees)
-
-"""Pour un filtrage base sur l’item, il faut definir une mesure de la similarite entre items. Plusieurs options sont possibles pour les mesures de similarite."""
-
-"""Le systeme de filtrage collaboratif a ete popularise par Amazon avec la fonctionnalite "les gens qui ont achete x ont aussi achete y". 
-    Le systeme d'Amazon etait un systeme passif qui se basait sur les achats des gens pour construire la matrice de relation entre les objets.
-
-    Batir une matrice item-item déterminant des relations entre des objets "pairs"
-    Utiliser cette matrice pour proposer des objets."""
