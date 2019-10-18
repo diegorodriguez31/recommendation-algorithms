@@ -31,9 +31,4 @@ def coefficientCorrelationSpearman(user1, user2):
         if donnees[user2][i] != -1:
             L2.append(donnees[user2][i])
     for i in L1:
-        
-            
-            
-        
-    
     return 1
