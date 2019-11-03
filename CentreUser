@@ -4,10 +4,12 @@
 #Coefficient de corrélation de Pearson
 import numpy as np
 import csv
+import pickle
 from math import sqrt
 from math import fabs
+from math import log
 
-# Lire le fichier csv et le mettre dans un tableau
+# Lire le fichier csv incomplet et le mettre dans un tableau
 def lecture_csv():
     n = 100
     m = 1000
@@ -23,9 +25,16 @@ def lecture_csv():
             i += 1
     return donnees
 
+
+#tableau qui contient la moitie des notes seulement
 donnees = lecture_csv()
 
-"""    Recuperer une selection d'informations sur laquelle va se baser le systeme de filtrage
+#tableau intermediaire pour accelerer l'algorithme
+tableauIntermediaire = np.zeros((100,1000))
+listeMoyennes = []
+tabSimilarite = np.zeros((100,100))
+
+"""Recuperer une selection d'informations sur laquelle va se baser le systeme de filtrage
     La première consiste a recueillir de l'information
     La seconde consiste a batir une matrice contenant l'information.
     La troisieme à extraire a partir de cette matrice une liste de suggestions"""
@@ -37,7 +46,8 @@ facon d’agreger les notes attribuees par les utilisateurs similaires.
 
 
 # Calcul de la similarité version utilisateur
-def similaritefactoring(user1, user2):
+def similariteFactoring(user1, user2):
+    r = 0
     sommeUser1 = 0
     sommeUser2 = 0
     nombreItem = 0
@@ -60,6 +70,7 @@ def similaritefactoring(user1, user2):
         r = numerateur / (sqrt(norme1) * sqrt(norme2))
     return r
 
+
 def moyenneItems(user):
     somme = 0
     nombre = 0
@@ -70,25 +81,73 @@ def moyenneItems(user):
     moyenne = somme/nombre
     return moyenne
 
+def remplirListeMoyennes():
+    for i in range(np.shape(donnees)[0]):
+        listeMoyennes.append(moyenneItems(i))
+    return listeMoyennes
+
 def ponderationPremiere(user,item):
     num = 0
     den = 0
     for i in range(np.shape(donnees)[0]):
             if donnees[i][item] != -1:
-                sim = similaritefactoring(user,i)
-                num += sim * (donnees[i][item] - moyenneItems(i))
-                den += fabs(sim)
-    return round(moyenneItems(user) + num/den,2)
+                num += tabSimilarite[user][i] * (donnees[i][item] - listeMoyennes[i])
+                den += fabs(tabSimilarite[user][i])
+    return round(listeMoyennes[user] + num/den,2)
 
-#def ponderationSeconde():
-    
+def remplirTabSimilarite():
+    for i in range(np.shape(tabSimilarite)[0]):
+        for j in range(np.shape(tabSimilarite)[0] ):
+                tabSimilarite[i][j] = similariteFactoring(i,j)
+                print tabSimilarite[i][j]
+    return tabSimilarite
+                
+def ponderationSeconde(user,item):
+    num = 0
+    den = 0
+    for i in range(np.shape(donnees)[0]):
+        if donnees[i,item] != -1:       
+            num += donnees[user][i] * similariteFactoring(user,i)
+            den += fabs(similariteFactoring(user,i))
+    return num/den
 
+
+""" autre types de ponderation : weighted majority prediction and  imputation-boosted CF"""
+
+def remplirTabInter():
+    for i in range(np.shape(donnees)[0]):
+        for j in range(np.shape(donnees)[1]):
+            if donnees[i][j] == -1:
+                tableauIntermediaire[i][j] = ponderationPremiere(i,j)
+                print tableauIntermediaire[i][j]
+    return tableauIntermediaire
+                
+                
 def donneesCompletes():
     donneesCompletes = donnees
     for i in range(np.shape(donneesCompletes)[0]):
         for j in range(np.shape(donneesCompletes)[1]):
             if donneesCompletes[i][j] == -1:
-                donneesCompletes[i][j] = ponderationPremiere(i,j)
+                donneesCompletes[i][j] = tableauIntermediaire[i][j]
                 print donneesCompletes[i][j]
     return donneesCompletes
 
+#savoir si les items les plus aimes ou detestes sont plus note que les autres items
+def frequence(item):
+    ni = 0
+    for i in range(np.shape(donnees)[0]):
+        if donnees[i][item] != -1:
+            ni += 1
+    return log(100) /ni
+
+""" Ceci a permit de construire le tableau de donnes estimees
+listeMoyennes = remplirListeMoyennes()
+tabSimilarite = remplirTabSimilarite()
+remplirTabInter()   
+donneesCompletes = donneesCompletes()
+"""
+
+#pickle pour enregistrer nos objets : serialisation
+with open('PearsonUser', 'wb') as fichier:
+    mon_pickler = pickle.Pickler(fichier)
+    mon_pickler.dump(donneesCompletes)
