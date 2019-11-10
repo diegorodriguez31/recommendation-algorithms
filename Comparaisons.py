@@ -33,7 +33,7 @@ with open('PearsonUser', 'rb') as fichier:
     pearsonUser = mon_depickler.load()
 
 #Mean Absolute Error (MAE)
-def MaePearsonUser():
+def maePearsonUser():
     num = 0
     den = 0
     for i in range(np.shape(donneesJustes)[0]):
@@ -42,26 +42,26 @@ def MaePearsonUser():
             den += 1
     return num/den
 
-#Root Mean Squared Error (RMSE)
-def RmsePearsonUser():
+#Root Mean Squared Error (RMSE) = dispersion = variance, moyenne quadratique des ecarts
+def rmsePearsonUser():
     num = 0
     den = 0
     for i in range(np.shape(donneesJustes)[0]):
         for j in range(np.shape(donneesJustes)[1]):
-            num += (pearsonUser[i][j] - donneesJustes[i][j])**2
+            num += (pearsonUser[i][j] - donneesJustes[i][j])**2 #erreur²
             den += 1
     return sqrt(num/den)
 
 #Mean Bias Error (MBE)
-def MbePersonUser():
+def mbePersonUser():
     num = 0
     den = 0
     for i in range(np.shape(donneesJustes)[0]):
         for j in range(np.shape(donneesJustes)[1]):
-            num += pearsonUser[i][j] - donneesJustes[i][j]
+            num += pearsonUser[i][j] - donneesJustes[i][j] #represente l'erreur
             den += 1
     return num/den
 
-print MaePearsonUser()
-print RmsePearsonUser()
-print MbePersonUser()
+print "Mean absolute error :" ,maePearsonUser()
+print "Root Mean Squared Error :" ,rmsePearsonUser()
+print "Mean Bias Error :" ,mbePersonUser()
