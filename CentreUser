@@ -5,9 +5,19 @@
 import numpy as np
 import csv
 import pickle
+import random
 from math import sqrt
 from math import fabs
 from math import log
+""" METTRE LES DIMENSIONS DU TABLEAU PAS EN DUR MAIS EN X, Y
+FAIRE UNE PONDERATION TOUTE SIMPLE DE MOYENNE ET GARDER LA PONDERATIONPREMIERE ET ABANDONNER PONDERATIONSECONDE SI MARCHE PAS
+CORRIGER CENTREITEM
+FINIR COS
+FAIRE UNE METHODE QUI CHERCHE LES 10 PLUS PROCHES VOISINS ET 4 PLUS PROCHES
+TESTER LES COMPARAISONS DE CHACUN
+TOUT COMPARER
+FAIRE L'AUTRE METHODE DONT IL PARLAIT
+"""
 
 # Lire le fichier csv incomplet et le mettre dans un tableau
 def lecture_csv():
@@ -25,6 +35,50 @@ def lecture_csv():
             i += 1
     return donnees
 
+# Lire le fichier csv complet et le mettre dans un tableau
+def lecture_csvComplet():
+    n = 100
+    m = 1000
+
+    fichier = './toy_complet.csv'
+    donnees = np.zeros((n, m))
+    i = 0
+    with open(fichier, 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in spamreader:
+            for j in range(m):
+                donnees[i, j] = row[j]
+            i += 1
+    return donnees
+
+toyComplet = lecture_csvComplet()
+
+
+#Fabriquer des tableaux avec moins de notes
+def tableau75():
+    for i in range(np.shape(toyComplet)[0]):
+        for j in range(np.shape(toyComplet)[1]):
+            rand = random.random()
+            if(rand <= 0.75):
+                toyComplet[i][j] = -1
+    return toyComplet
+
+def tableau90():
+    for i in range(np.shape(toyComplet)[0]):
+        for j in range(np.shape(toyComplet)[1]):
+            rand = random.random()
+            if(rand <= 0.90):
+                toyComplet[i][j] = -1
+    return toyComplet
+
+def tableau99():
+    for i in range(np.shape(toyComplet)[0]):
+        for j in range(np.shape(toyComplet)[1]):
+            rand = random.random()
+            if(rand <= 0.99):
+                toyComplet[i][j] = -1
+    return toyComplet
+            
 
 #tableau qui contient la moitie des notes seulement
 donnees = lecture_csv()
@@ -33,17 +87,6 @@ donnees = lecture_csv()
 tableauIntermediaire = np.zeros((100,1000))
 listeMoyennes = []
 tabSimilarite = np.zeros((100,100))
-
-"""Recuperer une selection d'informations sur laquelle va se baser le systeme de filtrage
-    La première consiste a recueillir de l'information
-    La seconde consiste a batir une matrice contenant l'information.
-    La troisieme à extraire a partir de cette matrice une liste de suggestions"""
-
-"""Pour un filtrage base sur l’utilisateur, il faut definir une mesure de la similarite entre utilisateurs, et une
-facon d’agreger les notes attribuees par les utilisateurs similaires.
-    Chercher des utilisateurs qui ont les memes comportements avec l'utilisateur a qui l'on souhaite faire des recommandations
-    Utiliser les notes des utilisateurs similaires pour calculer une liste de recommandations pour cet utilisateur."""
-
 
 # Calcul de la similarité version utilisateur
 def similariteFactoring(user1, user2):
@@ -70,6 +113,37 @@ def similariteFactoring(user1, user2):
         r = numerateur / (sqrt(norme1) * sqrt(norme2))
     return r
 
+def remplirTabSimilarite():
+    for i in range(np.shape(tabSimilarite)[0]):
+        for j in range(np.shape(tabSimilarite)[0] ):
+                tabSimilarite[i][j] = similariteFactoring(i,j)
+                print tabSimilarite[i][j]
+    return tabSimilarite
+
+def plusProchesVoisins10(user):
+    liste = []
+    liste10Voisins = []
+    for i in range(np.shape(tabSimilarite)[1]):
+        liste.append(tabSimilarite[user][i])
+    for i in range (0,10):
+        maximum = 0
+        for j in range (0,len(liste)):
+            if liste[i+1] > liste[i]:
+                maximum = liste[i+1]
+        liste.remove(maximum)
+        liste10Voisins.append(maximum)
+    return liste10Voisins
+
+def plusProchesVoisins4(user):
+    liste = []
+    liste4Voisins = []
+    for i in range(np.shape(tabSimilarite)[1]):
+        liste.append(i)
+    for i in range (0,4):
+        maximum = max(liste)
+        liste.remove(maximum)
+        liste4Voisins.append(maximum)
+    return liste4Voisins
 
 def moyenneItems(user):
     somme = 0
@@ -95,18 +169,13 @@ def ponderationPremiere(user,item):
                 den += fabs(tabSimilarite[user][i])
     return round(listeMoyennes[user] + num/den,2)
 
-def remplirTabSimilarite():
-    for i in range(np.shape(tabSimilarite)[0]):
-        for j in range(np.shape(tabSimilarite)[0] ):
-                tabSimilarite[i][j] = similariteFactoring(i,j)
-                print tabSimilarite[i][j]
-    return tabSimilarite
+
                 
 def ponderationSeconde(user,item):
     num = 0
     den = 0
     for i in range(np.shape(donnees)[0]):
-        if donnees[i,item] != -1:       
+        if donnees[i][item] != -1:       
             num += donnees[user][i] * similariteFactoring(user,i)
             den += fabs(similariteFactoring(user,i))
     return num/den
@@ -140,14 +209,17 @@ def frequence(item):
             ni += 1
     return log(100) /ni
 
-""" Ceci a permit de construire le tableau de donnes estimees
+
+#Cette suite d'instructions a permit de construire le tableau de donnes estimees
 listeMoyennes = remplirListeMoyennes()
 tabSimilarite = remplirTabSimilarite()
-remplirTabInter()   
+remplirTabInter()  
 donneesCompletes = donneesCompletes()
-"""
+
 
 #pickle pour enregistrer nos objets : serialisation
 with open('PearsonUser', 'wb') as fichier:
     mon_pickler = pickle.Pickler(fichier)
     mon_pickler.dump(donneesCompletes)
+
+#print plusProchesVoisins10(4)
