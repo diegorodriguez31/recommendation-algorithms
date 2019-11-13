@@ -3,9 +3,11 @@
 # Filtrage collabortatif
 #Coefficient de corrélation de Pearson
 import numpy as np
+import csv
+import pickle
 from math import sqrt
 from math import fabs
-from CentreUser import lecture_csv
+
 
 """Pour un filtrage base sur l’item, il faut definir une mesure de la similarite entre items. Plusieurs options sont possibles pour les mesures de similarite.
     Le systeme de filtrage collaboratif a ete popularise par Amazon avec la fonctionnalite : les gens qui ont achete x ont aussi achete y. 
@@ -15,10 +17,32 @@ from CentreUser import lecture_csv
     Utiliser cette matrice pour proposer des objets."""
 
 #On recree le tableau du code centre user
-donnees = lecture_csv()
+def lecture_csv():
+    n = 100
+    m = 1000
+
+    fichier = './toy_incomplet.csv'
+    donnees = np.zeros((n, m))
+    i = 0
+    with open(fichier, 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in spamreader:
+            for j in range(m):
+                donnees[i, j] = row[j]
+            i += 1
+    return donnees
+
+"""def ecriture_csv(matrice):
+    with open('collaborative_filtering_item_based.csv','w') as csvfile:
+        filewriter = csv.writer(csvfile)
+        for u in range(len(matrice)):
+            chaine = ''
+            for i in range(len(matrice[u])):
+                chaine += str(matrice[u][i])+' '
+            filewriter.writerow([chaine])"""
 
 #On transpose le tableau de base afin de faire la meme prediction centree item
-donneesItem = donnees
+donneesItem = lecture_csv()
 tableauIntermediaire = np.zeros((100,1000))
 listeMoyennes = []
 tabSimilarite = np.zeros((1000,1000))
@@ -90,15 +114,15 @@ def ponderationSeconde(user,item):
     return num/den
 
 def remplirTabInter():
-    for i in range(np.shape(donnees)[0]):
-        for j in range(np.shape(donnees)[1]):
-            if donnees[i][j] == -1:
-                tableauIntermediaire[i][j] = ponderationSeconde(i,j)
+    for i in range(np.shape(donneesItem)[0]):
+        for j in range(np.shape(donneesItem)[1]):
+            if donneesItem [i][j] == -1:
+                tableauIntermediaire[i][j] = ponderationPremiere(i,j)
                 print tableauIntermediaire[i][j]
     return tableauIntermediaire
 
 def donneesCompletes():
-    donneesCompletes = donnees
+    donneesCompletes = donneesItem
     for i in range(np.shape(donneesCompletes)[0]):
         for j in range(np.shape(donneesCompletes)[1]):
             if donneesCompletes[i][j] == -1:
@@ -106,13 +130,12 @@ def donneesCompletes():
                 print donneesCompletes[i][j]
     return donneesCompletes
 
-
 listeMoyennes = remplirListeMoyennes()
 tabSimilarite = remplirTabSimilarite()
-#remplirTabInter()
-#donneesCompletes = donneesCompletes()
-"""
+remplirTabInter()
+donneesCompletes = donneesCompletes()
+
 #pickle pour enregistrer nos objets : serialisation
 with open('PearsonItem', 'wb') as fichier:
     mon_pickler = pickle.Pickler(fichier)
-    mon_pickler.dump(donneesCompletes)"""
+    mon_pickler.dump(donneesCompletes)
